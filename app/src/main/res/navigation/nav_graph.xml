@@ -6,6 +6,12 @@
     app:startDestination="@id/fragment_item_list">
 
     <fragment
+        android:id="@+id/fragment_login"
+        android:name="ro.ubb.cs.fujinuji.androidapp.auth.login.LoginFragment"
+        android:label="@string/login"
+        tools:layout="@layout/fragment_login" />
+
+    <fragment
         android:id="@+id/fragment_item_edit"
         android:name="ro.ubb.cs.fujinuji.androidapp.item.ItemEditFragment"
         android:label="@string/item_edit_fragment_label"

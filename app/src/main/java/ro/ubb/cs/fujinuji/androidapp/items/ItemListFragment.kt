@@ -12,6 +12,8 @@ import androidx.lifecycle.observe
 import androidx.navigation.fragment.findNavController
 import kotlinx.android.synthetic.main.fragment_item_list.*
 import ro.ubb.cs.fujinuji.androidapp.R
+import ro.ubb.cs.fujinuji.androidapp.auth.data.AuthRepository
+import ro.ubb.cs.fujinuji.androidapp.core.Constants
 import ro.ubb.cs.fujinuji.androidapp.core.TAG
 
 class ItemListFragment : Fragment() {
@@ -33,10 +35,23 @@ class ItemListFragment : Fragment() {
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
         Log.v(TAG, "onActivityCreated")
+        var token = Constants.instance()?.fetchValueString("token")
+        if (token == null) {
+            findNavController().navigate(R.id.fragment_login)
+            return;
+        }
+
         setupItemList()
+
         fab.setOnClickListener {
             Log.v(TAG, "add new item")
             findNavController().navigate(R.id.fragment_item_edit)
+        }
+
+        logout.setOnClickListener{
+            Log.v(TAG, "LOGOUT")
+            AuthRepository.logout()
+            findNavController().navigate(R.id.fragment_login)
         }
     }
 
@@ -59,7 +74,7 @@ class ItemListFragment : Fragment() {
                 Toast.makeText(activity, message, Toast.LENGTH_SHORT).show()
             }
         }
-        itemsModel.loadItems()
+        itemsModel.refresh()
     }
 
     override fun onDestroy() {

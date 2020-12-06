@@ -1,11 +1,13 @@
 package ro.ubb.cs.fujinuji.androidapp.item
 
+import android.os.Build
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
+import androidx.annotation.RequiresApi
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
@@ -14,6 +16,7 @@ import androidx.navigation.fragment.findNavController
 import kotlinx.android.synthetic.main.fragment_item_edit.*
 import ro.ubb.cs.fujinuji.androidapp.R
 import ro.ubb.cs.fujinuji.androidapp.core.TAG
+import ro.ubb.cs.fujinuji.androidapp.data.Flight
 
 class ItemEditFragment : Fragment() {
     companion object {
@@ -22,6 +25,7 @@ class ItemEditFragment : Fragment() {
 
     private lateinit var viewModel: ItemEditViewModel
     private var itemId: String? = null
+    private var flight: Flight? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -50,6 +54,7 @@ class ItemEditFragment : Fragment() {
         item_arrival_time.setText("")
     }
 
+    @RequiresApi(Build.VERSION_CODES.O)
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
         Log.v(TAG, "onActivityCreated")
@@ -64,6 +69,7 @@ class ItemEditFragment : Fragment() {
 
     }
 
+    @RequiresApi(Build.VERSION_CODES.O)
     private fun setupViewModel() {
         viewModel = ViewModelProvider(this).get(ItemEditViewModel::class.java)
         viewModel.item.observe(viewLifecycleOwner) { item ->
@@ -101,6 +107,4 @@ class ItemEditFragment : Fragment() {
             viewModel.loadItem(id)
         }
     }
-
-
 }

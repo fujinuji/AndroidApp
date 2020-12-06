@@ -13,4 +13,5 @@
     <string name="sign_in">Sign In</string>
     <string name="item_list_fragment">Item list fragment</string>
     <string name="item_edit_fragment">Item edit fragment</string>
+    <string name="logout">logout</string>
 </resources>

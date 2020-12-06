@@ -1,45 +1,67 @@
 package ro.ubb.cs.fujinuji.androidapp.data
 
-import android.util.Log
-import ro.ubb.cs.fujinuji.androidapp.core.TAG
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MediatorLiveData
+import ro.ubb.cs.fujinuji.androidapp.core.Constants
+import ro.ubb.cs.fujinuji.androidapp.data.local.FlightDao
+import ro.ubb.cs.fujinuji.androidapp.data.remote.ItemApi
+import ro.ubb.cs.fujinuji.androidapp.core.Result
 
-object FlightRepository {
-    private var cachedItems: MutableList<Flight>? = null;
+class FlightRepository(private val flightDao: FlightDao) {
 
-    suspend fun loadAll(): List<Flight> {
-        Log.i(TAG, "loadAll")
-        if (cachedItems != null) {
-            return cachedItems as List<Flight>;
+    val flights = MediatorLiveData<List<Flight>>().apply { postValue(emptyList()) }
+
+    suspend fun refresh(): Result<Boolean> {
+        try {
+            val flightsApi = ItemApi.service.find()
+            flights.value = flightsApi
+            for (flight in flightsApi) {
+                //plant.userId = Constants.instance()?.fetchValueString("_id")!!
+                flightDao.insert(flight)
+            }
+            return Result.Success(true)
+        } catch (e: Exception) { // handle offline mode
+
+            val userId = Constants.instance()?.fetchValueString("_id")
+            flights.addSource(flightDao.getAll(userId!!)) {
+                flights.value = it
+            }
+
+            return Result.Error(e)
         }
-        cachedItems = mutableListOf()
-        val items = ItemApi.service.find()
-        cachedItems?.addAll(items)
-        return cachedItems as List<Flight>
     }
 
-    suspend fun load(itemId: String): Flight {
-        Log.i(TAG, "load")
-        val item = cachedItems?.find { it.id == itemId }
-        if (item != null) {
-            return item
-        }
-        return ItemApi.service.read(itemId)
+    fun getById(itemId: String): LiveData<Flight> {
+        return flightDao.getById(itemId)
     }
 
-    suspend fun save(item: Flight): Flight {
-        Log.i(TAG, "save")
-        val createdItem = ItemApi.service.create(item)
-        cachedItems?.add(createdItem)
-        return createdItem
+    suspend fun save(item: Flight): Result<Flight> {
+        try {
+            val createdItem = ItemApi.service.create(item)
+            flightDao.insert(createdItem)
+            return Result.Success(createdItem)
+        } catch (e: Exception) {
+            return Result.Error(e)
+        }
     }
 
-    suspend fun update(item: Flight): Flight {
-        Log.i(TAG, "update")
-        val updatedItem = ItemApi.service.update(item.id, item)
-        val index = cachedItems?.indexOfFirst { it.id == item.id }
-        if (index != null) {
-            cachedItems?.set(index, updatedItem)
+    suspend fun update(item: Flight): Result<Flight> {
+        try {
+            val updatedItem = ItemApi.service.update(item._id, item)
+            flightDao.update(updatedItem)
+            return Result.Success(updatedItem)
+        } catch (e: Exception) {
+            return Result.Error(e)
         }
-        return updatedItem
+    }
+
+    suspend fun delete(itemId: String): Result<Boolean> {
+        try {
+            ItemApi.service.delete(itemId)
+            flightDao.delete(id = itemId)
+            return Result.Success(true)
+        } catch (e: Exception) {
+            return Result.Error(e)
+        }
     }
 }
