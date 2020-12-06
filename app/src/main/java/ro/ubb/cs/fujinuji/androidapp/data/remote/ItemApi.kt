@@ -15,7 +15,7 @@ import ro.ubb.cs.fujinuji.androidapp.core.Constants
 import ro.ubb.cs.fujinuji.androidapp.data.Flight
 
 object ItemApi {
-    private const val WSURL = "http://192.168.0.87:3000" // "ws://192.168.0.150:3000"
+    private const val WSURL = "ws://192.168.0.87:3000" // "ws://192.168.0.150:3000"
 
     interface Service {
         @GET("/api/flight/")

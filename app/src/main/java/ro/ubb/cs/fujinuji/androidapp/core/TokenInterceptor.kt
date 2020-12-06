@@ -10,7 +10,7 @@ class TokenInterceptor constructor() : Interceptor {
     val original = chain.request()
     val originalUrl = original.url()
     if (token == null) {
-      return chain.proceed(original)
+      token = Constants.instance()?.fetchValueString("token");
     }
     val requestBuilder = original.newBuilder()
       .addHeader("Authorization", "Bearer $token")

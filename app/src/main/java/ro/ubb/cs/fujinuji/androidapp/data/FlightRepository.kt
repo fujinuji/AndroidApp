@@ -20,13 +20,12 @@ class FlightRepository(private val flightDao: FlightDao) {
                 flightDao.insert(flight)
             }
             return Result.Success(true)
-        } catch (e: Exception) { // handle offline mode
-
+        } catch (e: Exception) {
+            // handle offline mode
             val userId = Constants.instance()?.fetchValueString("_id")
             flights.addSource(flightDao.getAll(userId!!)) {
                 flights.value = it
             }
-
             return Result.Error(e)
         }
     }
